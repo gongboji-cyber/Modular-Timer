@@ -1,6 +1,5 @@
 $ErrorActionPreference = "Stop"
 
-# Build from the project root, no matter where the script is launched from.
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ProjectRoot
 
@@ -26,6 +25,7 @@ Write-Host "[4/5] Building Windows executable..."
   --name ModularTimer `
   --paths "$ProjectRoot\src" `
   --collect-submodules modular_timer_desktop `
+  --collect-submodules PySide6 `
   --add-data "$ProjectRoot\assets\app.ico;assets" `
   --icon "$ProjectRoot\assets\app.ico" `
   "$ProjectRoot\run.py"
