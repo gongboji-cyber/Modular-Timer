@@ -1,61 +1,103 @@
-# Modular Timer Desktop
+# ModularTimer
 
-一个本地运行的多用途计时器，面向辩论赛、课堂展示、面试练习、考试模拟和专注学习。
+**ModularTimer** 是一款高度自由的本地桌面流程计时器，面向 PPT 汇报、课堂展示、辩论赛、答辩、面试训练、考试模拟和活动控场等场景。
 
-它不是一个只能倒计时的小玩具，而是把计时流程拆成可组合的 **计时单元**：
+它不是普通倒计时，也不是写死流程的辩论计时器。新版核心模型是：
 
-- 单独计时：适合学习、演讲、面试、考试练习。
-- 正方单元：只为正方计时。
-- 反方单元：只为反方计时。
-- 正反方同时：双方独立倒计时，可设置不同时间。
-- 公共/单人单元：适合评委点评、中场休息、准备时间、普通计时。
+```text
+Flow → Stage → TimerUnit
+流程 → 阶段 → 计时模块
+```
+
+每个流程可以包含多个阶段，每个阶段可以包含任意数量的计时模块；模块名称、模块数量、模块时长、模块颜色、铃声模式都可以自定义。
+
+## 解决的痛点
+
+很多学习、汇报、辩论、面试和活动场景并不是一个简单倒计时就能解决的，而是由多个阶段、多个角色和多个并行时间组成。普通计时器只能倒数，辩论计时器又过于固定，PPT 自带计时功能也不够灵活。本工具通过自由流程设计、多模块并行计时、PPT 悬浮显示和自定义铃声，让用户可以为任何复杂场景快速搭建专属计时流程。
 
 ## 功能
 
-- 美观的桌面应用界面，基于 PySide6。
-- 支持单独计时模式。
-- 支持辩论会/流程计时模式。
-- 支持添加、编辑、删除、上移、下移计时单元。
-- 支持导入/导出 JSON 流程文件。
-- 本地自动保存流程配置。
-- 支持提示音开关。
-- 支持快捷键：
-  - 空格：开始/暂停
-  - Enter：下一阶段
-  - R：重置
+- 单独计时模式：适合专注学习、演讲练习、面试模拟、考试训练。
+- 自由流程模式：自定义流程、阶段、模块数量、模块名称、模块时长。
+- 多模块计时：支持单计时、并行计时、手动独立计时、依次计时。
+- PPT 悬浮模块：无边框、置顶、可调透明度、可拖动、可锁定。
+- 自定义铃声：支持静音、结束响铃、最后 10 秒提示、30/10 秒提示、结束循环响铃。
+- 自定义本地铃声文件：建议优先使用 `.wav`，也可尝试 `.mp3` / `.ogg`。
+- 流程导入/导出 JSON：方便不同活动模板复用。
+- 本地自动保存：配置保存在用户本机，不需要账号、不需要后端。
 
 ## 本地运行
 
-先安装依赖：
-
-```bash
+```powershell
+cd "D:\新建文件夹\modular_timer_desktop"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-运行：
-
-```bash
 python run.py
 ```
 
-## Windows 打包为 exe
-
-在项目根目录打开 PowerShell，运行：
+如果 PowerShell 阻止脚本运行，先执行：
 
 ```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+## 打包成 Windows EXE
+
+```powershell
+cd "D:\新建文件夹\modular_timer_desktop"
 .\build_windows.ps1
 ```
 
-打包完成后，程序在：
+打包完成后打开：
 
 ```text
-dist\ModularTimer\ModularTimer.exe
+D:\新建文件夹\modular_timer_desktop\dist\ModularTimer\ModularTimer.exe
+```
+
+## 快捷键
+
+| 快捷键 | 功能 |
+|---|---|
+| Space | 开始 / 暂停当前计时 |
+| Enter | 下一阶段 |
+| R | 重置当前计时 |
+| Ctrl + L | 锁定 / 解锁 PPT 悬浮窗 |
+
+## JSON 流程格式示例
+
+```json
+{
+  "schema": "modular-timer-flow-v2",
+  "name": "课堂辩论流程",
+  "stages": [
+    {
+      "name": "自由辩论",
+      "mode": "parallel",
+      "timers": [
+        { "name": "正方", "duration": 240, "color": "#2563EB", "alarm_mode": "global" },
+        { "name": "反方", "duration": 240, "color": "#DC2626", "alarm_mode": "global" }
+      ]
+    },
+    {
+      "name": "PPT 汇报",
+      "mode": "sequential",
+      "timers": [
+        { "name": "汇报", "duration": 480, "color": "#7C3AED", "alarm_mode": "last_10" },
+        { "name": "提问", "duration": 180, "color": "#D97706", "alarm_mode": "end_once" }
+      ]
+    }
+  ]
+}
 ```
 
 ## 项目结构
 
 ```text
 modular_timer_desktop/
+├─ run.py
+├─ requirements.txt
+├─ build_windows.ps1
 ├─ assets/
 │  └─ app.ico
 ├─ src/
@@ -64,24 +106,11 @@ modular_timer_desktop/
 │     ├─ __main__.py
 │     ├─ app.py
 │     └─ settings.py
-├─ run.py
-├─ requirements.txt
-├─ build_windows.ps1
-├─ README.md
-├─ LICENSE
-└─ .gitignore
+└─ .github/
+   └─ workflows/
+      └─ build-windows.yml
 ```
 
-## 配置保存位置
+## License
 
-程序会把自定义流程保存到当前用户目录下：
-
-```text
-~/.modular_timer_desktop/stages.json
-```
-
-删除这个文件即可恢复初始状态。
-
-## 设计原则
-
-核心不是“多几个按钮”，而是让每个计时环节都成为可复用模块。这样同一个程序可以服务于辩论赛、课堂展示、面试练习、社团活动、考试模拟，而不是锁死在某一个固定场景里。
+MIT
